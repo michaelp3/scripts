@@ -2,13 +2,17 @@
 # Copyright 2021 Dokyung Song. All rights reserved.
 # Use of this source code is governed by Apache 2 LICENSE that can be found in the LICENSE file.
 
+
+CONFIGS=(`basename configs/*defconfig` tinyconfig)
+
 if [ $# -lt 1 ] || [ $# -gt 2 ]; then
-	echo "Usage: $0 <KERNEL_SRC_DIR>" >&2
+	echo "Usage: $0 <KERNEL_SRC_DIR> <CONFIG>" >&2
+	echo "       CONFIG: ${CONFIGS[*]}" >&2
 	exit 1
 fi
 
 KERNEL_SRC_DIR=$1
-config=csi2115_f21
+defconfig=csi2115_f21_defconfig
 
 if [ ! -d $KERNEL_SRC_DIR ]; then
 	echo $KERNEL_SRC_DIR does not exist.
@@ -16,24 +20,28 @@ if [ ! -d $KERNEL_SRC_DIR ]; then
 fi
 
 if [ $# -eq 2 ]; then
-	IMAGE_OUT_DIR=$2
-else
-	BUILD_DIR=$(dirname $0)/build
-	mkdir -p $BUILD_DIR
+	defconfig=$2
+fi
 
-	IMAGE_OUT_DIR=$BUILD_DIR/linux
+BUILD_DIR=$(dirname $0)/build
+mkdir -p $BUILD_DIR
 
-	IMAGE_OUT_DIR=$PWD/$IMAGE_OUT_DIR
+IMAGE_OUT_DIR=$BUILD_DIR/linux
 
-	if [ ! -d $IMAGE_OUT_DIR ]; then
-		echo Creating $IMAGE_OUT_DIR
-		mkdir -p $IMAGE_OUT_DIR
-	fi
+IMAGE_OUT_DIR=$PWD/$IMAGE_OUT_DIR
+
+if [ ! -d $IMAGE_OUT_DIR ]; then
+	echo Creating $IMAGE_OUT_DIR
+	mkdir -p $IMAGE_OUT_DIR
 fi
 
 INSTALL_MOD_PATH=$IMAGE_OUT_DIR/modules
 
-cp configs/v5.12.0-rc1-dontuse.config $IMAGE_OUT_DIR/$config/.config
+if [ $defconfig = "tinyconfig" ]; then
+	INSTALL_MOD_PATH=""
+else
+	cp configs/${defconfig} $KERNEL_SRC_DIR/arch/x86/configs
+fi
 
 pushd $KERNEL_SRC_DIR
 
@@ -42,11 +50,11 @@ set -eux
 export CC=gcc-8
 export CXX=g++-8
 
-make csi2115_f21_defconfig O=$IMAGE_OUT_DIR/$config
-make -j8 O=$IMAGE_OUT_DIR/$config CC=$CC
+make ${defconfig} O=$IMAGE_OUT_DIR/csi2115_f21
+make -j8 O=$IMAGE_OUT_DIR/csi2115_f21 CC=$CC
 
-if [ $INSTALL_MOD_PATH != "" ]; then
-	pushd $IMAGE_OUT_DIR/$config
+if [ "$INSTALL_MOD_PATH" != "" ]; then
+	pushd $IMAGE_OUT_DIR/csi2115_f21
 	make modules_install INSTALL_MOD_PATH=$INSTALL_MOD_PATH
 	popd
 fi
