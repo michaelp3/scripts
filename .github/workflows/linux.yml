@@ -1,11 +1,8 @@
 name: Linux Workflow
 on:
   push:
-    paths:
-      - 'linux'
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+    branches:
+      - "linux/**"
 
 jobs:
   build:
@@ -13,13 +10,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
 
       # Runs a single command using the runners shell
-      - name: Download
-        run: wget https://github.com/michaelp3/linux/archive/$GITHUB_SHA.zip
-      
-      - name: Unzip
-        run: unzip $GITHUB_SHA.zip
-        
-      - name: Build
-        run: ./build-linux.sh linux-$GITHUB_SHA tinyconfig
+      - name: Check if linux build is clean
+        run: |
+          ./install-deps.sh
+          commit_num=$(git rev-parse @:./linux)
+          wget https://github.com/michaelp3/linux/archive/$commit_num.zip
+          unzip $commit_num.zip
+          ./build-linux.sh linux-$commit_num tinyconfig
