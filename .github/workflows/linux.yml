@@ -2,16 +2,15 @@ name: Linux Workflow
 on:
   push:
     paths:
-      - "linux/**"
+      - 'linux'
 
 jobs:
   build:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
+      - name: checkout
+        uses: actions/checkout@v2
 
       # Runs a single command using the runners shell
       - name: Check if linux build is clean
