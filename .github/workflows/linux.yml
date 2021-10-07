@@ -20,3 +20,6 @@ jobs:
       
       - name: Unzip
         run: unzip $GITHUB_SHA.zip
+        
+      - name: Build
+        run: ./build-linux.sh linux-$GITHUB_SHA tinyconfig
