@@ -1,0 +1,22 @@
+name: Linux Workflow
+on:
+  push:
+    paths:
+      - 'linux'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Download
+        run: wget https://github.com/michaelp3/linux/archive/$GITHUB_SHA.zip
+      
+      - name: Unzip
+        run: unzip $GITHUB_SHA.zip
