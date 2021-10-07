@@ -1,7 +1,7 @@
 name: Linux Workflow
 on:
   push:
-    branches:
+    paths:
       - "linux/**"
 
 jobs:
