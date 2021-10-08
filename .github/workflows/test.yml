@@ -1,0 +1,17 @@
+name: Test Workflow
+
+on:
+  push:
+    paths:
+      - 'test/**'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Check clean test compilation
+        run: make -C test
+
