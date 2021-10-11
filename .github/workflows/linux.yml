@@ -12,11 +12,10 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
       - name: Check if linux build is clean
         run: |
           ./install-deps.sh
-          commit_num=$(git rev-parse @:./linux)
-          wget https://github.com/michaelp3/linux/archive/$commit_num.zip
-          unzip $commit_num.zip
-          ./build-linux.sh linux-$commit_num tinyconfig
+          commit_hash=$(git rev-parse @:./linux)
+          wget https://github.com/michaelp3/linux/archive/$commit_hash.zip
+          unzip $commit_hash.zip
+          ./build-linux.sh linux-$commit_hash tinyconfig
